@@ -14,10 +14,12 @@ class Solver(k: Int, s: String, private val changes: List<Change>) {
         }
     }
 
-    fun printSolution() {
+    fun getSolution() : String {
+        val sb = StringBuilder()
         for (block in blocks) {
-            print(block)
+            sb.append(block.toString())
         }
+        return sb.toString()
     }
 
     private fun applyChange(change: Change) {
@@ -93,6 +95,6 @@ fun main(args: Array<String>) {
 
         val solver = Solver(k, s, changes)
         solver.solve()
-        solver.printSolution()
+        print(solver.getSolution())
     }
 }
