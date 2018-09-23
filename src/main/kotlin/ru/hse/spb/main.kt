@@ -2,8 +2,8 @@ package ru.hse.spb
 
 import org.antlr.v4.runtime.BufferedTokenStream
 import org.antlr.v4.runtime.CharStreams
-import ru.hse.spb.parser.ExpLexer
-import ru.hse.spb.parser.ExpParser
+import ru.hse.spb.parser.FunLexer
+import ru.hse.spb.parser.FunParser
 
 fun getGreeting(): String {
     val words = mutableListOf<String>()
@@ -15,6 +15,6 @@ fun getGreeting(): String {
 }
 
 fun main(args: Array<String>) {
-    val expLexer = ExpLexer(CharStreams.fromString("(1 + 2)"))
-    println(ExpParser(BufferedTokenStream(expLexer)).eval().value)
+    val lexer = FunLexer(CharStreams.fromString("1"))
+    val parser = FunParser(BufferedTokenStream(lexer))
 }
