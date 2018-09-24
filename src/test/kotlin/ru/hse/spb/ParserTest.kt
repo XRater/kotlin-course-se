@@ -24,6 +24,13 @@ class ParserTest {
     }
 
     @Test
+    fun testLiteral() {
+        getFileFromText("144")
+        getFileFromText("-123")
+        getFileFromText("0")
+    }
+
+    @Test
     fun testIdentifier() {
         getFileFromText("a")
         getFileFromText("a b")
@@ -245,6 +252,9 @@ class ParserTest {
         getFileFromText("if (1) { return 1 + 2 }")
         getFileFromText("if (1) { return a }")
         getFileFromText("if (1) { return foo(a) }")
+        getFileFromText("return 0")
+        getFileFromText("return 1")
+        getFileFromText("return -1")
     }
 
 }

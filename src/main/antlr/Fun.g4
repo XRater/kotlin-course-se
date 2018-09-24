@@ -23,7 +23,7 @@ parameterNames : (identifier (',' identifier)*)?;
 
 whileStatement : 'while' '(' expression ')' blockWithBraces;
 
-returnStatement : 'retrun' expression;
+returnStatement : 'return' expression;
 
 ifStatement : 'if' '(' expression ')' blockWithBraces ('else' blockWithBraces)?;
 
@@ -47,8 +47,8 @@ multiplication : atomic (('*' | '/' | '%') atomic)*;
 
 atomic : literal | identifier | '(' expression ')' | functionCall;
 
-literal returns [double value]
-    : x=Number {$value = Double.parseDouble($x.text);}
+literal returns [int value]
+    : x=Number {$value = Integer.parseInt($x.text);}
     ;
 
 identifier returns [String value]
@@ -60,7 +60,7 @@ Id
     ;
 
 Number
-    :    ('0'..'9')+ ('.' ('0'..'9')+)?
+    :    '-'?('1'..'9')('0'..'9')* | '0'
     ;
 
 WS : (' ' | '\t' | '\r'| '\n') -> skip;

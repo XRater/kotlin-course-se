@@ -76,4 +76,11 @@ class ParserTestErrors {
         getFileFromTextExpectingError("fun foo(1)")
         getFileFromTextExpectingError("fun foo(1 + 2) {}")
     }
+
+    /* Test return*/
+
+    @Test
+    fun testReturn() {
+        getFileFromTextExpectingError("return return")
+    }
 }
