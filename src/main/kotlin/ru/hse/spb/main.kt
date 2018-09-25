@@ -4,9 +4,11 @@ import java.util.*
 
 data class Change(val letter: Char, val index: Int)
 
+const val ALPHABET_SIZE = 26
+
 class Solver(k: Int, s: String, private val changes: List<Change>) {
 
-    private var blocks: Array<Block> = Array(k) { _ -> Block(s) }
+    private val blocks = Array(k) { Block(s) }
 
     fun solve() {
         for (change in changes) {
@@ -38,8 +40,11 @@ class Solver(k: Int, s: String, private val changes: List<Change>) {
 
 class Block(s: String) {
 
-    private val letters : Array<Array<Boolean>> = Array(s.length) { _ -> Array(26) { _ -> false} }
-    private val letterCounts : Array<Int> = Array(26) {_ -> 0}
+    private val letters = Array(s.length) {
+        @Suppress("NestedLambdaShadowedImplicitParameter")
+        Array(ALPHABET_SIZE) { false }
+    }
+    private val letterCounts = Array(ALPHABET_SIZE) { 0 }
     private val length : Int = s.length
 
     init {
@@ -72,7 +77,7 @@ class Block(s: String) {
     override fun toString(): String {
         val sb = StringBuilder()
         for (i in 0 until length) {
-            for (c in 0 until  26) {
+            for (c in 0 until ALPHABET_SIZE) {
                 if (letters[i][c]) {
                     sb.append((c + 'a'.toInt()).toChar())
                 }
