@@ -26,16 +26,6 @@ class InterpreterTest {
     }
 
     @Test
-    fun testReturnFromWhile() {
-        assertEquals(0, run(
-                "while (1) {\n" +
-                "   var x = 1\n" +
-                "   return 1\n" +
-                "}"
-        ))
-    }
-
-    @Test
     fun testBlock() {
         assertEquals(0, run("var x = 1"))
     }
@@ -187,4 +177,354 @@ class InterpreterTest {
         assertEquals(1, run("return 2 == 3 == 0"))
         assertEquals(1, run("return 2 || 3 || 0"))
     }
+
+    @Test
+    fun testAssignment() {
+        assertEquals(2, run(
+                "var x = 1\n" +
+                "x = 2\n" +
+                "return x"
+        ))
+        assertEquals(2, run(
+                "var x\n" +
+                "x = 2\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testIfTrue() {
+        assertEquals(2, run(
+                "var x = 1\n" +
+                "if (7) {\n" +
+                "   x = 2\n" +
+                "} else {\n" +
+                "   x = 3\n" +
+                "}\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testIfTrueNoElse() {
+        assertEquals(2, run(
+                "var x = 1\n" +
+                "if (56) {\n" +
+                "   x = 2\n" +
+                "}\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testIfFalse() {
+        assertEquals(3, run(
+                "var x = 1\n" +
+                "if (0) {\n" +
+                "   x = 2\n" +
+                "} else {\n" +
+                "   x = 3\n" +
+                "}\n" +
+                "return x"
+        ))
+    }
+
+
+    @Test
+    fun testIfFalseNoElse() {
+        assertEquals(1, run(
+                "var x = 1\n" +
+                "if (0) {\n" +
+                "   x = 2\n" +
+                "}\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testIfReturn() {
+        assertEquals(2, run(
+                "if (1) {\n" +
+                "   return 2\n" +
+                "   return 3\n" +
+                "}\n" +
+                "return 1"
+        ))
+    }
+
+    @Test
+    fun testIfReturnWithElse() {
+        assertEquals(3, run(
+                "if (0) {\n" +
+                "   return 2\n" +
+                "   return 4\n" +
+                "} else {\n" +
+                "   return 3\n" +
+                "   return 5\n" +
+                "}\n" +
+                "return 1"
+        ))
+    }
+
+    @Test
+    fun testWhileFalse() {
+        assertEquals(2, run(
+                "while (0) {\n" +
+                "   return 1\n" +
+                "}\n" +
+                "return 2"
+        ))
+    }
+
+    @Test
+    fun testWhileTrue() {
+        assertEquals(1, run(
+                "while (1) {\n" +
+                "   return 1\n" +
+                "}\n" +
+                "return 2"
+        ))
+    }
+
+    @Test
+    fun testWhileWithState() {
+        assertEquals(4, run(
+                "var x = 1\n" +
+                "while (x != 4) {\n" +
+                "   x = x + 1\n" +
+                "}\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testWhileWithInnerIf() {
+        assertEquals(7, run(
+                "var x = 1\n" +
+                "while (x != 4) {\n" +
+                "   x = x + 1\n" +
+                "   if (x == 3) {\n" +
+                "       return 7\n" +
+                "   }\n" +
+                "}\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testFunctionCallNoArgs() {
+        assertEquals(2, run(
+                "fun foo() {\n" +
+                 "  return 2\n" +
+                 "}\n" +
+                "return foo()\n"
+        ))
+        assertEquals(2, run(
+                "fun foo() {\n" +
+                "   return 2\n" +
+                "   return 3\n" +
+                "}\n" +
+                "return foo()\n"
+        ))
+        assertEquals(24, run(
+                "var n = 4\n" +
+                "var x = 1\n" +
+                "fun fact() {\n" +
+                "   if (n != 0) {\n" +
+                "       x = x * n\n" +
+                "       n = n - 1\n" +
+                "       return fact()\n" +
+                "   } else {\n" +
+                "       return x\n" +
+                "   }\n" +
+                "}\n" +
+                "return fact()"
+        ))
+    }
+
+    @Test
+    fun testFunctionCallArgument() {
+        assertEquals(2, run(
+                "fun id(x) {\n" +
+                "   return x\n" +
+                "}\n" +
+                "return id(2)"
+        ))
+    }
+
+    @Test
+    fun testFunctionCallTwoArguments() {
+        assertEquals(3, run(
+                "fun sum(a, b) {\n" +
+                "   return a + b\n" +
+                "}\n" +
+                "return sum(1, 2)"
+        ))
+    }
+
+    @Test
+    fun testFunctionCallVariable() {
+        assertEquals(3, run(
+                "var x = 3" +
+                "fun id(a) {" +
+                "   return a" +
+                "}" +
+                "return id(x)"
+        ))
+    }
+
+    @Test
+    fun testFunctionCallVariableShadowing() {
+        assertEquals(3, run(
+                "var x = 1\n" +
+                "fun id(x) {\n" +
+                "   return x + 1\n" +
+                "}\n" +
+                "return id(2)\n"
+        ))
+    }
+
+    @Test
+    fun testRecursive() {
+        assertEquals(24, run(
+                "fun fact(x) {\n" +
+                "   if (x == 0) {\n" +
+                "       return 1\n" +
+                "   } else {\n" +
+                "       return fact(x - 1) * x\n" +
+                "   }\n" +
+                "}\n" +
+                "return fact(4)\n"
+        ))
+    }
+
+    @Test
+    fun testInnerBlockShadowing() {
+        assertEquals(3, run("" +
+                "var x = 3\n" +
+                "var y = 0\n" +
+                "while (y < 2) {\n" +
+                "   y = y + 1\n" +
+                "   var x = 4\n" +
+                "   x = 0\n" +
+                "}\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testInnerBlockFunction() {
+        assertEquals(5, run("" +
+                "fun foo(x) {\n" +
+                "   return x + 1\n" +
+                "}\n" +
+                "\n" +
+                "var x = 3\n" +
+                "if (x == 3) {\n" +
+                "   fun foo(x) {\n" +
+                "       return x + 2\n" +
+                "   }\n" +
+                "   x = foo(x)\n" +
+                "}\n" +
+                "\n" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testPassValue() {
+        assertEquals(2, run("" +
+                "fun inc(x) {" +
+                "   x = x + 1" +
+                "}" +
+                "var x = 2" +
+                "inc(x)" +
+                "return x"
+        ))
+    }
+
+    @Test
+    fun testFunctionSideEffect() {
+        assertEquals(2, run("" +
+                "var cnt = 0" +
+                "fun inc() {" +
+                "   cnt = cnt + 1" +
+                "}" +
+                "" +
+                "inc()" +
+                "inc()" +
+                "return cnt"
+        ))
+    }
+
+    @Test
+    fun testThirdDefault() {
+        assertEquals(42, run("" +
+                "fun foo(n) {\n" +
+                "    fun bar(m) {\n" +
+                "        return m + n\n" +
+                "    }\n" +
+                "\n" +
+                "    return bar(1)\n" +
+                "}\n" +
+                "\n" +
+                "return foo(41)"
+        ))
+    }
+
+    @Test(expected = WrongAmountOfArguments::class)
+    fun testWrongAmountOfArgumentsMore() {
+        run(
+                "fun foo() {\n" +
+                "   return 1\n" +
+                "}\n" +
+                "foo(1)"
+        )
+    }
+
+    @Test(expected = WrongAmountOfArguments::class)
+    fun testWrongAmountOfArgumentsMore2() {
+        run(
+                "fun foo(x) {\n" +
+                "   return 1\n" +
+                "}\n" +
+                "foo(1, 2)"
+        )
+    }
+
+    @Test(expected = WrongAmountOfArguments::class)
+    fun testWrongAmountOfArgumentsLess() {
+        run(
+                "fun foo(x, y) {\n" +
+                "   return 1\n" +
+                "}\n" +
+                "foo(2)"
+        )
+    }
+
+    @Test(expected = WrongAmountOfArguments::class)
+    fun testWrongAmountOfArgumentsLess2() {
+        run(
+                "fun foo(x) {\n" +
+                "   return 1\n" +
+                "}\n" +
+                "foo()"
+        )
+    }
+
+    @Test(expected = DoubleFunctionDeclarationException::class)
+    fun testDoubleFunctionDeclaration() {
+        run(
+            "fun foo() {}\n" +
+            "fun foo(x) {}"
+        )
+    }
+
+    @Test(expected = NotDeclaredFunctionException::class)
+    fun testNotDeclaredFunctionException() {
+        run(
+                "return foo()"
+        )
+    }
+
 }

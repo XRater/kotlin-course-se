@@ -7,4 +7,9 @@ class NotInitializedVariableException : Throwable()
 
 class DoubleVariableDeclarationException : Throwable()
 
-class UnknownOperationException : Throwable()
+class DoubleFunctionDeclarationException : Throwable()
+
+class WrongAmountOfArguments : Throwable()
+
+class NotDeclaredFunctionException : Throwable()
+

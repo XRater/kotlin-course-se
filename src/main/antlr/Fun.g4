@@ -45,7 +45,7 @@ addition : multiplication (('+' | '-') multiplication)*;
 
 multiplication : atomic (('*' | '/' | '%') atomic)*;
 
-atomic : literal | identifier | '(' expression ')' | functionCall;
+atomic : functionCall | literal | identifier | '(' expression ')';
 
 literal returns [int value]
     : x=Number {$value = Integer.parseInt($x.text);}

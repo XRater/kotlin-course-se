@@ -4,45 +4,101 @@ import org.antlr.v4.runtime.ParserRuleContext
 import ru.hse.spb.parser.FunBaseVisitor
 import ru.hse.spb.parser.FunParser
 
-
 class InterpretVisitor : FunBaseVisitor<Int>() {
 
-    private val scope = Scope.getBaseScope()
+    private var scope = Scope.getBaseScope()
 
     private var rollBack = false
+    private var returnValue : Int? = null
 
     override fun visitFile(ctx: FunParser.FileContext): Int {
-        return ctx.block().accept(this)
+        ctx.block().accept(this)
+        return returnValue ?: 0
     }
 
-    override fun visitBlock(ctx: FunParser.BlockContext): Int {
+    override fun visitBlock(ctx: FunParser.BlockContext): Int? {
         for (statement in ctx.statement()) {
-            val result = statement.accept(this)
+            statement.accept(this)
             if (rollBack) {
-                return result
+                return null
             }
         }
-        return 0
+        return null
     }
 
-    override fun visitBlockWithBraces(ctx: FunParser.BlockWithBracesContext): Int {
-        return visitBlock(ctx.block())
+    override fun visitBlockWithBraces(ctx: FunParser.BlockWithBracesContext): Int? {
+        scope = scope.childScope()
+        ctx.block().accept(this)
+        scope = scope.parentScope!!
+        return null
     }
 
-    override fun visitStatement(ctx: FunParser.StatementContext): Int {
+    override fun visitStatement(ctx: FunParser.StatementContext): Int? {
         return ctx.getChild(0).accept(this)
     }
 
-    override fun visitVariable(ctx: FunParser.VariableContext): Int {
+    override fun visitFunction(ctx: FunParser.FunctionContext): Int? {
+        scope.addNewFunction(ctx.identifier().value, ctx)
+        return null
+    }
+
+    override fun visitVariable(ctx: FunParser.VariableContext): Int? {
         val name = ctx.identifier().value
         val value = ctx.expression()?.accept(this)
         scope.addNewVariable(name, value)
-        return 0
+        return null
     }
 
-    override fun visitReturnStatement(ctx: FunParser.ReturnStatementContext): Int {
+    override fun visitIfStatement(ctx: FunParser.IfStatementContext): Int? {
+        val condition = ctx.expression().accept(this).toBoolean()
+        val ifBranch = ctx.blockWithBraces(0)
+        val elseBranch = ctx.blockWithBraces(1)
+        if (condition) {
+            ifBranch.accept(this)
+        } else {
+            elseBranch?.accept(this)
+        }
+        return null
+    }
+
+    override fun visitWhileStatement(ctx: FunParser.WhileStatementContext): Int? {
+        while (!rollBack && ctx.expression().accept(this).toBoolean()) {
+            ctx.blockWithBraces().accept(this)
+        }
+        return null
+    }
+
+    override fun visitAssignment(ctx: FunParser.AssignmentContext): Int? {
+        scope.setVariable(ctx.identifier().text, ctx.expression().accept(this))
+        return null
+    }
+
+    override fun visitReturnStatement(ctx: FunParser.ReturnStatementContext): Int? {
+        returnValue = ctx.expression().accept(this)
         rollBack = true
-        return ctx.expression().accept(this)
+        return null
+    }
+
+    override fun visitFunctionCall(ctx: FunParser.FunctionCallContext): Int {
+        val function = scope.getFunction(ctx.identifier().value)
+        val arguments = ctx.arguments().expression().map { expr -> expr.accept(this) }
+        val argumentsNames = function.parameterNames().identifier().map { x -> x.value }
+        val argumentsRequired = function.parameterNames().identifier().size
+        if (arguments.size != argumentsRequired) {
+            throw WrongAmountOfArguments()
+        }
+
+        scope = scope.childScope()
+        for (i in 0 until argumentsRequired) {
+            scope.addNewVariable(argumentsNames[i], arguments[i])
+        }
+        function.blockWithBraces().accept(this)
+
+        scope = scope.parentScope!!
+        val result = returnValue ?: 0
+        returnValue = null
+        rollBack = false
+        return result
     }
 
     override fun visitExpression(ctx: FunParser.ExpressionContext): Int {
@@ -116,7 +172,7 @@ class InterpretVisitor : FunBaseVisitor<Int>() {
             "!=" -> (first != second).toInt()
             "&&" -> (first.toBoolean() && second.toBoolean()).toInt()
             "||" -> (first.toBoolean() || second.toBoolean()).toInt()
-            else -> throw UnknownOperationException()
+            else -> throw RuntimeException() //error while parsing
         }
     }
 }

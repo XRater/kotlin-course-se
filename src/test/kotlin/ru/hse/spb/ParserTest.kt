@@ -1,5 +1,6 @@
 package ru.hse.spb
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import ru.hse.spb.BaseTest.Companion.getFileFromText
 
@@ -255,6 +256,12 @@ class ParserTest {
         getFileFromText("return 0")
         getFileFromText("return 1")
         getFileFromText("return -1")
+    }
+
+    @Test
+    fun testReturnFunCall() {
+        val file = getFileFromText("return foo(0)")
+        assertEquals(1, file.getChild(0).childCount)
     }
 
 }
