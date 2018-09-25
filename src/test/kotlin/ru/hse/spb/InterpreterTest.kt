@@ -527,4 +527,28 @@ class InterpreterTest {
         )
     }
 
+    @Test(expected = NotDeclaredVariableException::class)
+    fun testVariableScope() {
+        run(
+                "if (1) {" +
+                "   var x = 1" +
+                "}" +
+                "return x"
+        )
+    }
+
+    @Test(expected = NotDeclaredFunctionException::class)
+    fun testFunctionScope() {
+        run(
+                "if (1) {" +
+                "   fun foo() {}" +
+                "}" +
+                "return foo()"
+        )
+    }
+
+    @Test
+    fun testComments() {
+        assertEquals(0, run("//return 1"))
+    }
 }

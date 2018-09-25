@@ -264,4 +264,11 @@ class ParserTest {
         assertEquals(1, file.getChild(0).childCount)
     }
 
+    @Test
+    fun testComments() {
+        getFileFromText("// sdfsf")
+        getFileFromText("var x// sdfsf")
+        getFileFromText("var x// sdfsf")
+        getFileFromText("// sdfsf var x")
+    }
 }

@@ -56,6 +56,7 @@ class ParserTestErrors {
         getFileFromTextExpectingError("{var x = 1}")
         getFileFromTextExpectingError("var x = {1}")
         getFileFromTextExpectingError("var x = 1 = 1")
+        getFileFromTextExpectingError("var x = a = b")
     }
 
     /* Function call */
