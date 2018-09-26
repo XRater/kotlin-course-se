@@ -12,3 +12,20 @@ fun run(text : String) : Int {
     val visitor = InterpretVisitor()
     return visitor.visit(file)
 }
+
+fun interpretate(text : String) {
+    val lexer = FunLexer(CharStreams.fromString(text))
+    val parser = FunParser(BufferedTokenStream(lexer))
+    val file = parser.file()
+    val visitor = InterpretVisitor()
+
+    try {
+        visitor.visit(file)
+    } catch (e : InterpretationException) {
+        print(e.message())
+    }
+}
+
+fun main(args: Array<String>) {
+    interpretate("return x")
+}

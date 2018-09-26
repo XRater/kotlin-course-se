@@ -91,7 +91,7 @@ class InterpretVisitor : FunBaseVisitor<Int>() {
         val argumentsNames = function.parameterNames().identifier().map { x -> x.value }
         val argumentsRequired = function.parameterNames().identifier().size
         if (arguments.size != argumentsRequired) {
-            throw WrongAmountOfArguments()
+            throw WrongAmountOfArguments(functionName, argumentsRequired, arguments.size)
         }
 
         scope = scope.childScope()

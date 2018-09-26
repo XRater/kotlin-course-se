@@ -10,15 +10,15 @@ class Scope(val parentScope : Scope?) {
 
     fun getValue(name : String) : Int {
         return if (variables.containsKey(name)) {
-            variables[name] ?: throw NotInitializedVariableException()
+            variables[name] ?: throw NotInitializedVariableException(name)
         } else {
-            parentScope?.getValue(name) ?: throw NotDeclaredVariableException()
+            parentScope?.getValue(name) ?: throw NotDeclaredVariableException(name)
         }
     }
 
     fun setVariable(name : String, value : Int) {
         if (!variables.containsKey(name)) {
-            parentScope?.setVariable(name, value) ?: throw NotDeclaredVariableException()
+            parentScope?.setVariable(name, value) ?: throw NotDeclaredVariableException(name)
             return
         }
         variables[name] = value
@@ -26,7 +26,7 @@ class Scope(val parentScope : Scope?) {
 
     fun addNewVariable(name: String, value: Int?) {
         if (variables.containsKey(name)) {
-            throw DoubleVariableDeclarationException()
+            throw DoubleVariableDeclarationException(name)
         }
         variables[name] = value
     }
@@ -35,13 +35,13 @@ class Scope(val parentScope : Scope?) {
         return if (functions.containsKey(name)) {
             return functions[name]!!
         } else {
-            parentScope?.getFunction(name) ?: throw NotDeclaredFunctionException()
+            parentScope?.getFunction(name) ?: throw NotDeclaredFunctionException(name)
         }
     }
 
     fun addNewFunction(name : String, function : FunParser.FunctionContext) {
         if (functions.containsKey(name)) {
-            throw DoubleFunctionDeclarationException()
+            throw DoubleFunctionDeclarationException(name)
         }
         functions[name] = function
     }

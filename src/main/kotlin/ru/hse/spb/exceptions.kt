@@ -1,15 +1,64 @@
 package ru.hse.spb
 
+import java.lang.Exception
 
-class NotDeclaredVariableException : Throwable()
 
-class NotInitializedVariableException : Throwable()
+abstract class InterpretationException : Exception() {
 
-class DoubleVariableDeclarationException : Throwable()
+    abstract fun message() : String
 
-class DoubleFunctionDeclarationException : Throwable()
+}
 
-class WrongAmountOfArguments : Throwable()
+class NotDeclaredVariableException(private val name : String) : InterpretationException() {
 
-class NotDeclaredFunctionException : Throwable()
+    override fun message(): String {
+        return "Not declared variable $name"
+    }
+
+}
+
+class NotInitializedVariableException(private val name : String) : InterpretationException() {
+
+    override fun message(): String {
+        return "Variable $name is not initialized"
+    }
+
+}
+
+class DoubleVariableDeclarationException(private val name : String) : InterpretationException() {
+
+    override fun message(): String {
+        return "Double declaration of variable $name"
+    }
+
+}
+
+class DoubleFunctionDeclarationException(private val name : String) : InterpretationException() {
+
+    override fun message(): String {
+        return "Double declaration of function $name"
+    }
+
+}
+
+class WrongAmountOfArguments(
+        private val name : String,
+        private val required : Int,
+        private val passed : Int
+) : InterpretationException() {
+
+    override fun message(): String {
+        return "Wrong amount of arguments for function $name. " +
+                "Required $required but passed $passed"
+    }
+
+}
+
+class NotDeclaredFunctionException(private val name : String) : InterpretationException() {
+
+    override fun message(): String {
+        return "Not declared function $name"
+    }
+
+}
 
