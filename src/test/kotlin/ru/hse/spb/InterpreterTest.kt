@@ -399,6 +399,21 @@ class InterpreterTest {
     }
 
     @Test
+    fun testRecursive2() {
+        assertEquals(24, run(
+                "fun fact(x) {\n" +
+                "   if (x == 1) {\n" +
+                "       return 1\n" +
+                "   } else {\n" +
+                        "x = x - 1" +
+                "       return fact(x) * (x + 1)\n" +
+                "   }\n" +
+                "}\n" +
+                "return fact(4)\n"
+        ))
+    }
+
+    @Test
     fun testInnerBlockShadowing() {
         assertEquals(3, run("" +
                 "var x = 3\n" +
@@ -550,5 +565,9 @@ class InterpreterTest {
     @Test
     fun testComments() {
         assertEquals(0, run("//return 1"))
+        assertEquals(2, run("" +
+                "//return 1\n" +
+                "return 2"
+        ))
     }
 }

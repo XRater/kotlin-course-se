@@ -6,6 +6,7 @@ import ru.hse.spb.parser.FunParser
 
 class InterpretVisitor : FunBaseVisitor<Int>() {
 
+    private val defaultModule = Module.getDefault()
     private var scope = Scope.getBaseScope()
 
     private var rollBack = false
@@ -80,8 +81,13 @@ class InterpretVisitor : FunBaseVisitor<Int>() {
     }
 
     override fun visitFunctionCall(ctx: FunParser.FunctionCallContext): Int {
-        val function = scope.getFunction(ctx.identifier().value)
         val arguments = ctx.arguments().expression().map { expr -> expr.accept(this) }
+        val functionName = ctx.identifier().value
+        if (defaultModule.contains(functionName)) {
+            return defaultModule.call(functionName, arguments)
+        }
+
+        val function = scope.getFunction(functionName)
         val argumentsNames = function.parameterNames().identifier().map { x -> x.value }
         val argumentsRequired = function.parameterNames().identifier().size
         if (arguments.size != argumentsRequired) {
