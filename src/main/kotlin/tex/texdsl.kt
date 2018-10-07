@@ -1,23 +1,10 @@
 package tex
 
+import tex.base.Element
+import tex.base.DocumentClass
+import tex.base.TextElement
+import tex.base.UserPackage
 import java.lang.StringBuilder
-
-@DslMarker
-annotation class TexMarker
-
-interface Element {
-
-    fun render(builder : StringBuilder, indent : String)
-
-}
-
-class TextElement(val text: String) : Element {
-
-    override fun render(builder: StringBuilder, indent: String) {
-        builder.append("$indent$text\n")
-    }
-
-}
 
 @TexMarker
 abstract class Tag(val name: String) : Element {
@@ -40,7 +27,15 @@ abstract class TagWithText(name: String) : Tag(name) {
     }
 }
 
-class Document : TagWithText("document")
+class Document : TagWithText("document") {
+
+    fun documentClass(argument : String, vararg attributes: String)
+            = children.add(DocumentClass(argument, *attributes))
+
+    fun userpackage(argument : String, vararg attributes: String)
+            = children.add(UserPackage(argument, *attributes))
+
+}
 
 fun document(init: Document.() -> Unit): Document {
     val document = Document()
@@ -51,6 +46,11 @@ fun document(init: Document.() -> Unit): Document {
 fun main(args: Array<String>) {
     val sb = StringBuilder()
     document {
+        documentClass("foo", "1", "2")
+        documentClass("foo")
+
+        userpackage("foo", "1", "2")
+        userpackage("foo")
     }.render(sb, "")
     println(sb.toString())
 }
