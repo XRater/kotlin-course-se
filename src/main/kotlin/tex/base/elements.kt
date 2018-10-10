@@ -11,6 +11,8 @@ interface Element {
 
 }
 
+interface Header : Element
+
 abstract class TagWithText : Element {
 
     val children = arrayListOf<Element>()

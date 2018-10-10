@@ -10,7 +10,7 @@ abstract class IdentifierTag(val name: String) : TagWithText() {
     override fun render(builder: StringBuilder, indent: String) {
         builder.append("$indent\\$name${renderAttributes(attributes)}\n")
         for (child in children) {
-            child.render(builder, "$indent  ")
+            child.render(builder, "$indent    ")
         }
     }
 
@@ -24,7 +24,7 @@ abstract class PairedTag(val name: String) : TagWithText() {
     override fun render(builder: StringBuilder, indent: String) {
         builder.append("$indent\\begin{$name}${renderAttributes(attributes)}\n")
         for (child in children) {
-            child.render(builder, "$indent  ")
+            child.render(builder, "$indent    ")
         }
         builder.append("$indent\\end{$name}\n")
     }

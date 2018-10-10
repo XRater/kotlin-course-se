@@ -5,13 +5,20 @@ import java.lang.StringBuilder
 
 class Document : PairedTag("document") {
 
-    fun documentClass(argument: String) = children.add(DocumentClass(argument))
+    private val headers = arrayListOf<Header>()
 
-    fun usepackage(argument: String, vararg attributes: String) = children.add(Usepackage(argument, *attributes))
+    override fun render(builder: StringBuilder, indent: String) {
+        renderList(builder, indent, headers)
+        super.render(builder, indent)
+    }
+
+    fun documentClass(argument: String) = headers.add(DocumentClass(argument))
+
+    fun usepackage(argument: String, vararg attributes: String) = headers.add(Usepackage(argument, *attributes))
 
     fun math(init: TexMath.() -> Unit) = initTag(TexMath(), init)
 
-    fun itemize(init: Itemize.() -> Unit) {
+    fun itemize(vararg attributes: String, init: Itemize.() -> Unit) {
         val itemize = initTag(Itemize(), init)
         itemize.attributes = attributes.toList()
     }
@@ -23,7 +30,7 @@ class Document : PairedTag("document") {
 
     fun frame(frameTitle: String, vararg attributes: String, init: Frame.() -> Unit) {
         val frame = initTag(Frame(), init)
-        frame.children.add(FunctionTag("frametitle", frameTitle))
+        frame.children.add(0, FunctionTag("frametitle", frameTitle))
         frame.attributes = attributes.toList()
     }
 
@@ -31,16 +38,19 @@ class Document : PairedTag("document") {
         val customTag = initTag(CustomTag(name), init)
         customTag.attributes = attributes.toList()
     }
+
+    fun alignment(name : Alignment.TYPE, init : Alignment.() -> Unit) = initTag(Alignment(name), init)
+
 }
 
 class DocumentClass(
         argument: String
-) : FunctionTag("documentClass", argument)
+) : FunctionTag("documentclass", argument), Header
 
 class Usepackage(
         argument: String,
         vararg attributes: String
-) : FunctionTag("userpackage", argument, *attributes)
+) : FunctionTag("usepackage", argument, *attributes), Header
 
 abstract class Listed(name: String) : PairedTag(name) {
 
@@ -53,9 +63,9 @@ abstract class Listed(name: String) : PairedTag(name) {
 
 class TexMath : PairedTag("math")
 
-class Enumerate : Listed("itemize")
+class Enumerate : Listed("enumerate")
 
-class Itemize : Listed("enumerate")
+class Itemize : Listed("itemize")
 
 class Item : IdentifierTag("item")
 
@@ -63,38 +73,21 @@ class Frame : PairedTag("frame")
 
 class CustomTag(name: String) : PairedTag(name)
 
+class Alignment(type : Alignment.TYPE) : PairedTag(type.type) {
+
+    enum class TYPE(val type : String) {
+        CENTER("center"),
+        LEFT("flushleft"),
+        RIGHT("flushright")
+    }
+}
+
 fun document(init: Document.() -> Unit): Document {
     val document = Document()
     document.init()
     return document
 }
 
-fun main(args: Array<String>) {
-    val sb = StringBuilder()
-    document {
-        documentClass("foo")
-        usepackage("foo", "1", "2")
-
-        +"sdsf"
-        math {
-            +"12 + 3"
-            +"sdfs"
-        }
-        itemize {
-            item("1") {
-                +"hello"
-                +"mymy"
-            }
-            item { +"good bye" }
-        }
-        frame("", "agr1" to "arg2") {
-            +"sdfs"
-        }
-        customTag("pyglist", "language" to "kotlin") {
-            +"sdfsf"
-            +"sdfs"
-        }
-
-    }.render(sb, "")
-    println(sb.toString())
+infix fun String.to(value : String) : String {
+    return "$this=$value"
 }
