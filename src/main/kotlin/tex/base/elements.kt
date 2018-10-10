@@ -11,7 +11,7 @@ interface Element {
 
 }
 
-abstract class TagWithText(val name: String) : Element {
+abstract class TagWithText : Element {
 
     val children = arrayListOf<Element>()
 
@@ -21,19 +21,19 @@ abstract class TagWithText(val name: String) : Element {
 }
 
 @TexMarker
-abstract class FunctionTag(
+open class FunctionTag(
         private val name : String,
         private val argument : String,
         private vararg val attributes : String
 ) : Element {
 
     override fun render(builder: StringBuilder, indent: String) {
-        builder.append("$indent\\$name[$argument]${renderAttributes(attributes)}\n")
+        builder.append("$indent\\$name${renderAttributes(attributes.toList())}{$argument}\n")
     }
 
 }
 
-class TextElement(val text: String) : Element {
+open class TextElement(val text: String) : Element {
 
     override fun render(builder: StringBuilder, indent: String) {
         builder.append("$indent$text\n")
