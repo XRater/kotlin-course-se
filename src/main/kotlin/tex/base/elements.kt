@@ -18,7 +18,7 @@ abstract class TagWithText : Element {
     val children = arrayListOf<Element>()
 
     operator fun String.unaryPlus() {
-        children.add(TextElement(this))
+        children += TextElement(this)
     }
 }
 
@@ -35,7 +35,7 @@ open class FunctionTag(
 
 }
 
-open class TextElement(val text: String) : Element {
+open class TextElement(private val text: String) : Element {
 
     override fun render(builder: StringBuilder, indent: String) {
         builder.append("$indent$text\n")

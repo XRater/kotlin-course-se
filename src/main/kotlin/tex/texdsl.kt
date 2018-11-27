@@ -83,9 +83,7 @@ class Alignment(type : Alignment.TYPE) : PairedTag(type.type) {
 }
 
 fun document(init: Document.() -> Unit): Document {
-    val document = Document()
-    document.init()
-    return document
+    return Document().apply(init)
 }
 
 infix fun String.to(value : String) : String {
